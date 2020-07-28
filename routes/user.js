@@ -67,6 +67,18 @@ mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
 //fazer validação de formulário
 router.route("/edit").post(function(req, res) {
+    var erros = []
+
+    if(!req.body.nome || typeof req.body.nome == undefined || req.body.nome == null){
+        erros.push({texto: "Invalid Name"})
+    }
+    if(!req.body.description || typeof req.body.description == undefined || req.body.description == null){
+        erros.push({texto: "Invalid Description"})
+    }
+    if(erros.length > 0){
+        res.render("user/edittodo", {erros: erros})
+    }else{
+    //editando formulario
     ToDo.findOneAndUpdate({_id:req.body.id}, { 
         nome: req.body.nome,
         description: req.body.description,
@@ -80,6 +92,6 @@ router.route("/edit").post(function(req, res) {
       }
       res.redirect("/user")
     });
-  });
+}});
   
 module.exports = router;
