@@ -60,7 +60,7 @@ router.get("/edit/:id",(req, res)=> {
     })
 
 })
-//critérios para utilização do findOneAndUpdate()
+//Critérios para utilização do findOneAndUpdate()
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
@@ -78,7 +78,7 @@ router.route("/edit").post(function(req, res) {
     if(erros.length > 0){
         res.render("user/edittodo", {erros: erros})
     }else{
-    //editando formulario
+    //Editando formulario
     ToDo.findOneAndUpdate({_id:req.body.id}, { 
         nome: req.body.nome,
         description: req.body.description,
@@ -93,5 +93,15 @@ router.route("/edit").post(function(req, res) {
       res.redirect("/user")
     });
 }});
+router.post("/delete", (req, res)=>{
+    ToDo.remove({_id: req.body.id}).then(()=>{
+        req.flash("success_msg", "Successfully deleted")
+        res.redirect("/user")
+    }).catch(()=>{
+        req.flash("error_msg", "Failed to delete")
+        res.redirect("/user")
+    })
+    
+})
   
 module.exports = router;

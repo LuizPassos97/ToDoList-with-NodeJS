@@ -10,8 +10,12 @@
 
         <h4>{{nome}}</h4>
         <small>{{description}}</small> <br>
-        <small>Date of creation: {{date}}</small> 
+        <small>Date of creation: {{date}}</small>
         <a href="/user/edit/{{_id}}"> <button class="btn btn-success mt-4">Edit ToDo</button></a>
+        <form action="/user/delete" method="POST">
+            <input hidden name="id" value="{{_id}}">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
     </div>
 </div>
 
