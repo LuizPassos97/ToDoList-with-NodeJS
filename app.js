@@ -28,7 +28,12 @@ const flash = require("connect-flash")
         app.use(bodyParser.urlencoded({ extended: true }))
         app.use(bodyParser.json())
     //HandleBars
-        app.engine('handlebars', handlebars({ defaultLayouts: 'main' }))
+        app.engine('handlebars', handlebars({ 
+        defaultLayouts: 'main',
+        partialsDir  : [
+           
+            path.join(__dirname, 'views/layouts/partials'),
+        ] }))
         app.set('view engine', 'handlebars')
     //mongoose
         mongoose.Promise = global.Promise;
@@ -53,3 +58,5 @@ const flash = require("connect-flash")
         console.log("Servidor rodando...")
     })
     app.use('/user', user);
+
+  
