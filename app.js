@@ -8,6 +8,8 @@ const path = require("path")
 var user = require('./routes/user');
 const session = require("express-session")
 const flash = require("connect-flash")
+require("./models/ToDo")
+const ToDo = mongoose.model("ToDos")
 
 
 //Configurações
@@ -48,7 +50,17 @@ const flash = require("connect-flash")
 
 //Rotas
     app.get("/", (req, res) => {
-        res.send("olá amigo")
+        ToDo.find().lean().populate("ToDo").sort({data:"desc"}).then((ToDo)=>{
+            res.render("index", {ToDo: ToDo})
+        }).catch((err)=>{
+            req.flash("error_msg","Internal error")
+            res.redirect("/404")
+
+        })
+        
+app.get("/404",(req,res)=>{
+    res.send("Erro 404!")
+})
     })
 
 

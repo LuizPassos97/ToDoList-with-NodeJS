@@ -1,0 +1,21 @@
+<div class="jumbotron">
+  <h1 class="display-4">Welcome to the ToDo List in Node.JS!</h1>
+  <p class="lead">
+I made this application in order to develop studies with Node.js.</p>
+  <hr class="my-4">
+  <p></p>
+  <a class="btn btn-primary btn-lg" href="/user/newuser" role="button">Create an Account</a>
+</div>
+
+<hr>
+<h4>Last ToDos:</h4>
+{{#each ToDo}}
+    <div class="card">
+        <div class="card-body">
+            <h3>{{nome}}</h3>
+            <small>{{description}}</small>
+        </div>
+    </div>
+{{else}}
+<h5>No ToDos</h5>
+{{/each}}

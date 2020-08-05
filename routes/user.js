@@ -3,6 +3,8 @@ const router = express.Router()
 const mongoose = require("mongoose")
 require("../models/ToDo")
 const ToDo = mongoose.model("ToDos")
+require("../models/User")
+const User = mongoose.model("Users")
 
 
 router.get('/', function(req, res) {
@@ -101,6 +103,48 @@ router.post("/delete", (req, res)=>{
         req.flash("error_msg", "Failed to delete")
         res.redirect("/user")
     })
+    
+})
+router.get('/newuser',(req, res)=>{
+    res.render("user/register")
+    
+})
+router.post('/register',(req, res)=>{
+    //validação
+    var erros = []
+
+    if(!req.body.nome || typeof req.body.nome == undefined || req.body.nome == null){
+        erros.push({texto: "Invalid Name"})
+    }
+    if(!req.body.email || typeof req.body.email == undefined || req.body.email == null){
+        erros.push({texto: "Invalid Email"})
+    }
+    if(!req.body.password || typeof req.body.password == undefined || req.body.password == null){
+        erros.push({texto: "Invalid Password"})
+    }
+    if (req.body.password != req.body.password2){
+        erros.push({texto: "Passwords don't match!"})
+    }
+    if(erros.length > 0){
+        res.render("user/register", {erros: erros})
+    }else{
+    //preenchendo formulário
+        const newUser = {
+            nome: req.body.nome,
+            email: req.body.email,
+            password: req.body.password
+        }
+
+        new User(newUser).save().then(()=>{
+            req.flash("success_msg", "Success to create new Account")
+            res.redirect("/")
+        }).catch((err)=>{
+            req.flash("error_msg", "Error on create an account")
+            res.redirect("/user/newuser")
+        })
+    }
+
+    
     
 })
   
