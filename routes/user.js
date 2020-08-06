@@ -5,9 +5,13 @@ require("../models/ToDo")
 const ToDo = mongoose.model("ToDos")
 require("../models/User")
 const User = mongoose.model("Users")
+const bcrypt = require("bcryptjs")
+const passport = require("passport")
+const {userAuthenticated} = require("../helpers/autenticado")
 
 
-router.get('/', function(req, res) {
+
+router.get('/', userAuthenticated, function(req, res) {
     
     ToDo.find().lean().sort({date: 'desc'}).then((ToDo) =>{
         res.render("user/index", {ToDo: ToDo})
@@ -18,11 +22,11 @@ router.get('/', function(req, res) {
     
 })
 
-router.get('/new',(req, res)=>{
+router.get('/new', userAuthenticated,(req, res)=>{
     res.render("user/add")
     
 })
-router.post('/add',(req, res)=>{
+router.post('/add', userAuthenticated,(req, res)=>{
     //validação
     var erros = []
 
@@ -53,7 +57,7 @@ router.post('/add',(req, res)=>{
     
     
 })
-router.get("/edit/:id",(req, res)=> {
+router.get("/edit/:id", userAuthenticated,(req, res)=> {
     ToDo.findOne({_id:req.params.id}).lean().then((ToDo)=>{
         res.render("user/edittodo", {ToDo: ToDo})
     }).catch((err)=>{
@@ -95,7 +99,7 @@ router.route("/edit").post(function(req, res) {
       res.redirect("/user")
     });
 }});
-router.post("/delete", (req, res)=>{
+router.post("/delete", userAuthenticated, (req, res)=>{
     ToDo.remove({_id: req.body.id}).then(()=>{
         req.flash("success_msg", "Successfully deleted")
         res.redirect("/user")
@@ -129,23 +133,52 @@ router.post('/register',(req, res)=>{
         res.render("user/register", {erros: erros})
     }else{
     //preenchendo formulário
-        const newUser = {
+        const newUser = new User({
             nome: req.body.nome,
             email: req.body.email,
             password: req.body.password
-        }
-
-        new User(newUser).save().then(()=>{
-            req.flash("success_msg", "Success to create new Account")
-            res.redirect("/")
-        }).catch((err)=>{
-            req.flash("error_msg", "Error on create an account")
-            res.redirect("/user/newuser")
         })
+        bcrypt.genSalt(10,(erro, salt) =>{
+            bcrypt.hash(newUser.password, salt, (erro, hash)=>{
+                if(erro){
+                    req.flash("error_msg", "Houve um erro ao cadastrar usuário")
+                    res.redirect("/")
+                }
+               newUser.password = hash 
+            new User(newUser).save().then(()=>{
+                req.flash("success_msg", "Success to create new Account")
+                res.redirect("/")
+            }).catch((err)=>{
+                req.flash("error_msg", "Error on create an account")
+                res.redirect("/user/newuser")
+            })
+            })
+        })
+
+        
     }
 
     
     
+})
+router.get("/login", (req, res)=>{
+    res.render("user/login")
+
+})
+router.post("/login", (req, res, next)=>{
+passport.authenticate("local",{
+    successRedirect: "/",
+    failureRedirect: "/user/login",
+    failureFlash: true
+})(req, res, next)
+
+
+
+})
+router.get("/logout",(req, res)=>{
+    req.logout()
+    req.flash("success_msg", "Logout done!")
+    res.redirect("/")
 })
   
 module.exports = router;
